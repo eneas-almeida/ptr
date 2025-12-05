@@ -38,6 +38,42 @@ This is a Spring Boot 4.0.0 application built with Java 21 and Maven. The projec
 ./mvnw site
 ```
 
+## Architecture
+
+This project follows **Clean Architecture** principles with reactive programming using WebFlux. The architecture is organized in layers with clear separation of concerns:
+
+### Layer Structure
+
+```
+org.ptr/
+├── domain/              # Enterprise Business Rules
+│   ├── entity/         # Domain entities
+│   └── usecase/        # Use case interfaces
+├── application/         # Application Business Rules
+│   └── usecase/        # Use case implementations
+├── infrastructure/      # Frameworks & Drivers
+│   ├── client/         # External API clients (WebClient)
+│   ├── repository/     # Data access interfaces/implementations
+│   └── config/         # Spring configuration
+└── presentation/        # Interface Adapters
+    ├── controller/     # REST controllers
+    └── dto/            # Data Transfer Objects
+```
+
+### Key Architectural Patterns
+
+1. **Dependency Rule**: Dependencies point inward. Domain layer has no dependencies on outer layers.
+2. **Use Cases**: All business logic is encapsulated in use cases implementing `UseCase<I, O>` interface.
+3. **Reactive Chains**: External API calls are chained using `flatMap` for sequential reactive operations.
+4. **WebClient**: All external HTTP calls use Spring WebClient with proper timeout configuration.
+
+### Example Flow
+
+Controller (presentation) → Use Case (application) → External API Client (infrastructure)
+- Controllers receive HTTP requests and delegate to use cases
+- Use cases orchestrate business logic and chain external API calls
+- External clients handle HTTP communication reactively
+
 ## Project Structure
 
 - **Package**: `org.ptr`
@@ -47,11 +83,9 @@ This is a Spring Boot 4.0.0 application built with Java 21 and Maven. The projec
 
 ## Key Dependencies
 
-- **spring-boot-starter-webflux**: Reactive web framework support
-- **spring-boot-starter-webmvc**: Traditional Spring MVC support
+- **spring-boot-starter-webflux**: Reactive web framework support (primary framework)
+- **spring-boot-starter-webmvc**: Traditional Spring MVC support (available if needed)
 - **spring-boot-starter-session-jdbc**: JDBC-based session management
-
-Note: This project has both WebFlux (reactive) and Web MVC (servlet) starters, which is unusual. Typically Spring Boot applications use one or the other. This may indicate a transitional architecture or specific requirements for handling both reactive and blocking endpoints.
 
 ## Testing
 
